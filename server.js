@@ -1233,7 +1233,12 @@ app.post('/api/consultoria', upload.array('documentos', 5), async (req, res) => 
         };
         
         // Envia o email
-        await transporter.sendMail(mailOptions);
+        console.log('📧 Tentando enviar email...');
+        console.log('📧 Para:', mailOptions.to);
+        console.log('📧 Assunto:', mailOptions.subject);
+        
+        const emailResult = await transporter.sendMail(mailOptions);
+        console.log('✅ Email enviado com sucesso!', emailResult.messageId);
         
         // Gera duas mensagens do WhatsApp diferentes:
         // 1. Para o CLIENTE (sem link de download - mais limpa)
@@ -1268,7 +1273,10 @@ app.post('/api/consultoria', upload.array('documentos', 5), async (req, res) => 
         });
         
     } catch (error) {
-        console.error('Erro ao processar solicitação:', error);
+        console.error('❌ Erro ao processar solicitação:', error);
+        console.error('❌ Stack trace:', error.stack);
+        console.error('❌ Tipo do erro:', error.name);
+        console.error('❌ Código do erro:', error.code);
         
         // Remove arquivos em caso de erro
         if (req.files) {
@@ -1278,7 +1286,12 @@ app.post('/api/consultoria', upload.array('documentos', 5), async (req, res) => 
         res.status(500).json({
             success: false,
             message: 'Erro interno do servidor. Tente novamente mais tarde.',
-            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+            errorDetails: process.env.NODE_ENV === 'production' ? {
+                name: error.name,
+                code: error.code,
+                message: error.message
+            } : undefined
         });
     }
 });
