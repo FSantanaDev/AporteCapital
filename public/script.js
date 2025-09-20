@@ -1199,7 +1199,7 @@ const ConsultoriaModal = {
         // Determina a URL do backend
         const backendUrl = this.getBackendUrl();
         
-        const response = await fetch(`${backendUrl}/api/send-email`, {
+        const response = await fetch(`${backendUrl}/api/consultoria`, {
             method: 'POST',
             body: formData
         });
@@ -1304,7 +1304,7 @@ const ConsultoriaModal = {
     getBackendUrl() {
         // Se estiver rodando localmente com o servidor Node.js
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            return 'http://localhost:3001';
+            return 'http://localhost:3002';
         }
         
         // Se estiver em produção no Vercel, usa as Serverless Functions
