@@ -1,7 +1,7 @@
 {
   "version": 2,
   "name": "aporte-capital-landing",
-  "buildCommand": "npm run build",
+  "buildCommand": "npm run vercel-build",
   "outputDirectory": "_site",
   "functions": {
     "api/send-email.js": {
