@@ -1,40 +1,21 @@
 {
   "version": 2,
   "name": "aporte-capital-landing",
-  "builds": [
-    {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "public/**/*",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/public/$1"
-    },
-    {
-      "src": "/",
-      "dest": "/public/index.html"
-    }
-  ],
   "functions": {
     "api/send-email.js": {
-      "maxDuration": 30,
-      "memory": 1024
+      "maxDuration": 30
     }
   },
-  "buildCommand": "npm run build",
-  "env": {
-    "NODE_ENV": "production"
-  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/public/$1"
+    }
+  ],
   "headers": [
     {
       "source": "/api/(.*)",
