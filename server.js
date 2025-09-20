@@ -427,6 +427,26 @@ const emailConfig = {
 
 const transporter = nodemailer.createTransport(emailConfig);
 
+// Debug: Verificar se as variáveis de ambiente estão carregadas
+console.log('=== DEBUG: Configuração de Email ===');
+console.log('EMAIL_USER:', process.env.EMAIL_USER ? 'Configurado' : 'NÃO CONFIGURADO');
+console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? 'Configurado' : 'NÃO CONFIGURADO');
+console.log('RECIPIENT_EMAIL:', process.env.RECIPIENT_EMAIL ? 'Configurado' : 'NÃO CONFIGURADO');
+console.log('SMTP_HOST:', process.env.SMTP_HOST || 'Usando padrão: smtp.gmail.com');
+console.log('SMTP_PORT:', process.env.SMTP_PORT || 'Usando padrão: 587');
+console.log('SMTP_SECURE:', process.env.SMTP_SECURE || 'Usando padrão: false');
+console.log('=====================================');
+
+// Testar conexão do transporter
+transporter.verify((error, success) => {
+    if (error) {
+        console.error('❌ Erro na configuração do email:', error.message);
+        console.error('Verifique suas credenciais de email no arquivo .env');
+    } else {
+        console.log('✅ Servidor de email configurado corretamente!');
+    }
+});
+
 // ===== FUNÇÕES AUXILIARES =====
 
 /**
