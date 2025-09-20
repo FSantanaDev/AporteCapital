@@ -1244,7 +1244,7 @@ const ConsultoriaModal = {
         
         // Cria mensagem para WhatsApp
         const whatsappMessage = this.createWhatsAppMessage(data);
-        const whatsappURL = `https://wa.me/5511999999999?text=${encodeURIComponent(whatsappMessage)}`;
+        const whatsappURL = `https://wa.me/5592999889392?text=${encodeURIComponent(whatsappMessage)}`;
         
         // Simula delay de processamento
         await new Promise(resolve => setTimeout(resolve, 1000));

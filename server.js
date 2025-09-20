@@ -1174,7 +1174,7 @@ app.post('/api/consultoria', upload.array('documentos', 5), async (req, res) => 
         // Gera duas mensagens do WhatsApp diferentes:
         // 1. Para o CLIENTE (sem link de download - mais limpa)
         const whatsappMessageForClient = generateWhatsAppMessageForClient(req.body, req.files);
-        const whatsappNumber = process.env.WHATSAPP_NUMBER || '5511999999999';
+        const whatsappNumber = process.env.WHATSAPP_NUMBER || '5592999889392';
         const whatsappURLForClient = generateWhatsAppURL(whatsappNumber, whatsappMessageForClient);
         
         // 2. Para a APORTE CAPITAL (com link de download - completa)
