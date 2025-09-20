@@ -1,9 +1,17 @@
 // ===== SERVERLESS FUNCTION - ENVIO DE E-MAIL =====
 // Função para envio de e-mails via Vercel Serverless Functions
 
-const nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer';
 
 export default async function handler(req, res) {
+    console.log('🚀 Função serverless iniciada');
+    console.log('📧 Variáveis de ambiente disponíveis:');
+    console.log('- EMAIL_USER:', process.env.EMAIL_USER ? '✅ Configurado' : '❌ Não configurado');
+    console.log('- EMAIL_PASS:', process.env.EMAIL_PASS ? '✅ Configurado' : '❌ Não configurado');
+    console.log('- RECIPIENT_EMAIL:', process.env.RECIPIENT_EMAIL ? '✅ Configurado' : '❌ Não configurado');
+    console.log('- SMTP_HOST:', process.env.SMTP_HOST || 'smtp.gmail.com (padrão)');
+    console.log('- SMTP_PORT:', process.env.SMTP_PORT || '587 (padrão)');
+    
     // Configurar CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -11,11 +19,13 @@ export default async function handler(req, res) {
 
     // Responder OPTIONS para CORS
     if (req.method === 'OPTIONS') {
+        console.log('✅ Respondendo OPTIONS para CORS');
         return res.status(200).end();
     }
 
     // Apenas aceitar POST
     if (req.method !== 'POST') {
+        console.log('❌ Método não permitido:', req.method);
         return res.status(405).json({ 
             success: false, 
             message: 'Método não permitido' 
@@ -33,14 +43,18 @@ export default async function handler(req, res) {
             descricao 
         } = req.body;
 
+        console.log('📝 Dados recebidos:', { nome, email, telefone, empresa });
+        
         // Validar dados obrigatórios
         if (!nome || !email || !telefone) {
+            console.log('❌ Dados obrigatórios faltando');
             return res.status(400).json({
                 success: false,
                 message: 'Nome, email e telefone são obrigatórios'
             });
         }
 
+        console.log('⚙️ Configurando transporter SMTP...');
         // Configurar transporter do nodemailer
         const transporter = nodemailer.createTransporter({
             host: process.env.SMTP_HOST || 'smtp.gmail.com',
@@ -51,6 +65,8 @@ export default async function handler(req, res) {
                 pass: process.env.EMAIL_PASS
             }
         });
+        
+        console.log('✅ Transporter configurado com sucesso');
 
         // Template do e-mail
         const emailHtml = `
@@ -117,22 +133,36 @@ export default async function handler(req, res) {
             html: emailHtml
         };
 
+        console.log('📧 Tentando enviar email...');
+        console.log('📧 Para:', mailOptions.to);
+        console.log('📧 Assunto:', mailOptions.subject);
+        
         // Enviar e-mail
-        await transporter.sendMail(mailOptions);
+        const emailResult = await transporter.sendMail(mailOptions);
+        console.log('✅ Email enviado com sucesso!', emailResult.messageId);
 
         // Resposta de sucesso
         return res.status(200).json({
             success: true,
-            message: 'E-mail enviado com sucesso!'
+            message: 'E-mail enviado com sucesso!',
+            messageId: emailResult.messageId
         });
 
     } catch (error) {
-        console.error('Erro ao enviar e-mail:', error);
+        console.error('❌ Erro ao enviar e-mail:', error);
+        console.error('❌ Stack trace:', error.stack);
+        console.error('❌ Tipo do erro:', error.name);
+        console.error('❌ Código do erro:', error.code);
         
         return res.status(500).json({
             success: false,
             message: 'Erro interno do servidor',
-            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+            errorDetails: {
+                name: error.name,
+                code: error.code,
+                message: error.message
+            }
         });
     }
 }
