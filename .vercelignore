@@ -5,6 +5,9 @@ node_modules/
 .env.local
 .env.example
 
+# Diretório de build (será gerado durante o deploy)
+_site/
+
 # Arquivos de documentação
 README.md
 DEPLOY-*.md

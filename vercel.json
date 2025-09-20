@@ -1,8 +1,8 @@
 {
   "version": 2,
   "name": "aporte-capital-landing",
-  "buildCommand": "echo 'Build completed'",
-  "outputDirectory": "public",
+  "buildCommand": "npm run build",
+  "outputDirectory": "_site",
   "functions": {
     "api/send-email.js": {
       "maxDuration": 30
