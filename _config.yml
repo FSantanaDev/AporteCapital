@@ -1,0 +1,51 @@
+# Configuração do GitHub Pages para Aporte Capital
+# ================================================
+
+# Informações básicas do site
+title: "Aporte Capital - Investimentos Estratégicos"
+description: "Plataforma especializada em aportes financeiros para empresas e empresários em crescimento"
+url: "https://fsantanadev.github.io"
+baseurl: "/AporteCapital"
+
+# Configurações do GitHub Pages
+repository: "FSantanaDev/AporteCapital"
+github_username: FSantanaDev
+
+# Configurações Jekyll
+markdown: kramdown
+highlighter: rouge
+theme: minima
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Configurações de build
+exclude:
+  - node_modules/
+  - package.json
+  - package-lock.json
+  - server.js
+  - .env.example
+  - uploads/
+  - README.md
+
+# Configurações de SEO
+lang: pt-BR
+author: "Francisco Santana"
+
+# Configurações sociais
+social:
+  name: "Aporte Capital"
+  links:
+    - "https://github.com/FSantanaDev"
+    - "https://linkedin.com/in/francisco-santana"
+
+# Configurações de navegação
+header_pages:
+  - index.html
+
+# Configurações de timezone
+timezone: America/Sao_Paulo
