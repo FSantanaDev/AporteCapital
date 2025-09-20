@@ -1,0 +1,167 @@
+# ===== APORTE CAPITAL - LANDING PAGE =====
+# Arquivo .gitignore para versionamento seguro no GitHub
+# Atualizado em: 2025
+
+# ===== ARQUIVOS SENSÍVEIS E CONFIGURAÇÕES =====
+# Nunca versionar arquivos com credenciais ou dados sensíveis
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+*.env
+
+# Configurações específicas do servidor
+config/production.json
+config/local.json
+
+# ===== NODE.JS E DEPENDÊNCIAS =====
+# Dependências instaladas via npm/yarn
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.npm
+.yarn-integrity
+
+# Arquivos de lock opcionais (manter package-lock.json)
+# yarn.lock
+
+# ===== UPLOADS E ARQUIVOS TEMPORÁRIOS =====
+# Pasta de uploads (documentos dos clientes)
+uploads/
+temp/
+tmp/
+
+# Tipos de arquivo que não devem ser versionados
+*.pdf
+*.doc
+*.docx
+*.xls
+*.xlsx
+*.zip
+*.rar
+*.7z
+
+# ===== LOGS E RELATÓRIOS =====
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# ===== SISTEMA OPERACIONAL =====
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+
+# ===== EDITORES E IDEs =====
+# Visual Studio Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ===== CACHE E BUILD =====
+.cache/
+.parcel-cache/
+.next/
+out/
+build/
+dist/
+
+# ===== TESTES =====
+coverage/
+.nyc_output/
+.coverage
+*.lcov
+
+# ===== RUNTIME =====
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# ===== CERTIFICADOS E CHAVES =====
+# Nunca versionar certificados ou chaves privadas
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+
+# ===== BACKUP E TEMPORÁRIOS =====
+*.bak
+*.backup
+*.tmp
+*.temp
+*~
+
+# ===== ESPECÍFICOS DO PROJETO =====
+# Arquivos de desenvolvimento local
+.local
+.development
+
+# Documentação gerada automaticamente
+docs/generated/
+
+# ===== COMENTÁRIOS IMPORTANTES =====
+# Este .gitignore protege:
+# 1. Credenciais e dados sensíveis (.env)
+# 2. Uploads de clientes (uploads/)
+# 3. Dependências (node_modules/)
+# 4. Logs e arquivos temporários
+# 5. Configurações específicas do ambiente
+
+# LEMBRE-SE:
+# - Sempre revisar antes de fazer commit
+# - Nunca commitar dados de clientes
+# - Manter .env.example para documentação
