@@ -360,7 +360,7 @@ function normalizarDadosCNPJ(data, apiName) {
 
 // ===== CONFIGURAÇÕES =====
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 10000;
 
 // Configuração do multer para upload de arquivos
 const storage = multer.diskStorage({
