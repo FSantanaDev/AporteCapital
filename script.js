@@ -1148,12 +1148,18 @@ const ConsultoriaModal = {
         submitBtn.disabled = true;
 
         try {
-            // Envia para o backend real
+            // Envia para o backend real ou processa estaticamente
             const response = await this.sendToBackend(formData);
             
             if (response.success) {
-                // Mostra mensagem de sucesso com botão do WhatsApp
-                this.showSuccessWithWhatsApp(response.message, response.whatsappURL);
+                // Se for ambiente estático (GitHub Pages), redireciona para WhatsApp
+                if (response.isStatic && response.whatsappURL) {
+                    this.showSuccessWithWhatsAppRedirect(response.message, response.whatsappURL);
+                } else {
+                    // Mostra mensagem de sucesso com botão do WhatsApp (backend)
+                    this.showSuccessWithWhatsApp(response.message, response.whatsappURL);
+                }
+                
                 this.resetForm();
                 
                 // Fecha o modal após 5 segundos (mais tempo para ver o WhatsApp)
@@ -1172,11 +1178,16 @@ const ConsultoriaModal = {
     },
 
     /**
-     * Envia dados para o backend
+     * Envia dados para o backend ou processa localmente (GitHub Pages)
      * @param {FormData} formData - Dados do formulário
-     * @returns {Promise} - Resposta do servidor
+     * @returns {Promise} - Resposta do servidor ou processamento local
      */
     async sendToBackend(formData) {
+        // Verifica se está no GitHub Pages ou ambiente estático
+        if (this.isStaticEnvironment()) {
+            return this.processFormStatically(formData);
+        }
+
         // Remove o campo de arquivo do FormData para evitar duplicação
         formData.delete('documentos');
         
@@ -1199,6 +1210,91 @@ const ConsultoriaModal = {
         }
 
         return await response.json();
+    },
+
+    /**
+     * Verifica se está em ambiente estático (GitHub Pages)
+     * @returns {boolean} - True se for ambiente estático
+     */
+    isStaticEnvironment() {
+        const hostname = window.location.hostname;
+        return hostname.includes('github.io') || 
+               hostname.includes('netlify.app') || 
+               hostname.includes('vercel.app') ||
+               (hostname !== 'localhost' && hostname !== '127.0.0.1' && !this.hasBackendEndpoint());
+    },
+
+    /**
+     * Verifica se existe endpoint do backend
+     * @returns {boolean} - True se existir backend
+     */
+    hasBackendEndpoint() {
+        // Verifica se existe algum indicador de backend ativo
+        return document.querySelector('meta[name="backend-available"]') !== null;
+    },
+
+    /**
+     * Processa formulário estaticamente (para GitHub Pages)
+     * @param {FormData} formData - Dados do formulário
+     * @returns {Promise} - Resposta simulada
+     */
+    async processFormStatically(formData) {
+        // Extrai dados do formulário
+        const data = Object.fromEntries(formData.entries());
+        
+        // Cria mensagem para WhatsApp
+        const whatsappMessage = this.createWhatsAppMessage(data);
+        const whatsappURL = `https://wa.me/5511999999999?text=${encodeURIComponent(whatsappMessage)}`;
+        
+        // Simula delay de processamento
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        return {
+            success: true,
+            message: 'Solicitação processada! Redirecionando para WhatsApp...',
+            whatsappURL: whatsappURL,
+            isStatic: true
+        };
+    },
+
+    /**
+     * Cria mensagem formatada para WhatsApp
+     * @param {Object} data - Dados do formulário
+     * @returns {string} - Mensagem formatada
+     */
+    createWhatsAppMessage(data) {
+        let message = `🏢 *NOVA SOLICITAÇÃO DE CONSULTORIA*\n\n`;
+        
+        message += `👤 *Nome:* ${data.nome || 'Não informado'}\n`;
+        message += `📧 *Email:* ${data.email || 'Não informado'}\n`;
+        message += `🏢 *Empresa:* ${data.empresa || 'Não informado'}\n`;
+        message += `📱 *Telefone:* ${data.telefone || 'Não informado'}\n`;
+        message += `💰 *Valor do Aporte:* ${this.getValorLabel(data.valor) || 'Não informado'}\n`;
+        message += `🎯 *Tipo de Consultoria:* ${data.tipoConsultoria || 'Não informado'}\n`;
+        
+        if (data.mensagem) {
+            message += `\n📝 *Mensagem:*\n${data.mensagem}\n`;
+        }
+        
+        message += `\n⏰ *Data/Hora:* ${new Date().toLocaleString('pt-BR')}\n`;
+        message += `🌐 *Origem:* GitHub Pages`;
+        
+        return message;
+    },
+
+    /**
+     * Converte valor do select para label legível
+     * @param {string} valor - Valor do select
+     * @returns {string} - Label formatada
+     */
+    getValorLabel(valor) {
+        const valores = {
+            '50k-100k': 'R$ 50.000 - R$ 100.000',
+            '100k-500k': 'R$ 100.000 - R$ 500.000',
+            '500k-1m': 'R$ 500.000 - R$ 1.000.000',
+            '1m+': 'Acima de R$ 1.000.000'
+        };
+        return valores[valor] || valor;
     },
 
     /**
@@ -1344,6 +1440,129 @@ const ConsultoriaModal = {
                 }, 300);
             }
         }, 8000);
+    },
+
+    /**
+     * Mostra mensagem de sucesso com redirecionamento automático para WhatsApp (GitHub Pages)
+     * @param {string} message - Mensagem de sucesso
+     * @param {string} whatsappURL - URL do WhatsApp
+     */
+    showSuccessWithWhatsAppRedirect(message, whatsappURL) {
+        // Remove mensagem anterior
+        const existingMessage = this.modal.querySelector('.modal-message');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+
+        // Cria container da mensagem
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'modal-message modal-message-success';
+        
+        let countdown = 3;
+        
+        // Função para atualizar o countdown
+        const updateCountdown = () => {
+            messageDiv.innerHTML = `
+                <div style="text-align: center;">
+                    <div style="margin-bottom: 1rem;">
+                        <strong>✅ ${message || 'Solicitação processada com sucesso!'}</strong>
+                    </div>
+                    <div style="margin-bottom: 1rem; font-size: 1.1rem;">
+                        🚀 <strong>Redirecionando para WhatsApp em ${countdown}s...</strong>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <div style="
+                            width: 40px;
+                            height: 40px;
+                            border: 3px solid #ffffff40;
+                            border-top: 3px solid #ffffff;
+                            border-radius: 50%;
+                            animation: spin 1s linear infinite;
+                            margin: 0 auto;
+                        "></div>
+                    </div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">
+                        📱 Sua mensagem será enviada automaticamente
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <button onclick="window.open('${whatsappURL}', '_blank')" 
+                                style="
+                                    background: #25D366;
+                                    color: white;
+                                    border: none;
+                                    padding: 0.5rem 1rem;
+                                    border-radius: 6px;
+                                    cursor: pointer;
+                                    font-size: 0.9rem;
+                                    transition: all 0.3s ease;
+                                "
+                                onmouseover="this.style.background='#128C7E'"
+                                onmouseout="this.style.background='#25D366'">
+                            🚀 Abrir WhatsApp Agora
+                        </button>
+                    </div>
+                </div>
+            `;
+        };
+
+        // Adiciona estilos inline para a mensagem
+        messageDiv.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 2rem;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            animation: scaleIn 0.3s ease-out;
+            box-shadow: 0 20px 40px rgba(16, 185, 129, 0.4);
+            max-width: 400px;
+            min-width: 350px;
+            text-align: center;
+        `;
+
+        // Adiciona estilos de animação
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes scaleIn {
+                from { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+                to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            }
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        document.body.appendChild(messageDiv);
+        updateCountdown();
+
+        // Countdown e redirecionamento
+        const countdownInterval = setInterval(() => {
+            countdown--;
+            if (countdown > 0) {
+                updateCountdown();
+            } else {
+                clearInterval(countdownInterval);
+                // Abre WhatsApp
+                window.open(whatsappURL, '_blank');
+                
+                // Remove mensagem
+                messageDiv.style.animation = 'scaleOut 0.3s ease-in';
+                setTimeout(() => {
+                    if (messageDiv.parentNode) {
+                        messageDiv.remove();
+                    }
+                    if (style.parentNode) {
+                        style.remove();
+                    }
+                }, 300);
+            }
+        }, 1000);
     },
 
     /**
