@@ -493,7 +493,7 @@ function validateFormData(data) {
  * @param {Object} data - Dados do formulário
  * @returns {string} - HTML do email
  */
-function generateEmailHTML(data, dadosCNPJ = null) {
+function generateEmailHTML(data, dadosCNPJ = null, downloadLink = null, files = null) {
     // Gera seção de dados do CNPJ se disponível
     const secaoCNPJ = dadosCNPJ && dadosCNPJ.success ? `
         <h2 style="color: #059669; border-bottom: 2px solid #059669; padding-bottom: 10px;">📊 DADOS OFICIAIS DO CNPJ</h2>
@@ -708,6 +708,50 @@ function generateEmailHTML(data, dadosCNPJ = null) {
                     <div class="field">
                         <div class="label">Outros Documentos:</div>
                         <div class="value">${data.outrosDocumentos.replace(/\n/g, '<br>')}</div>
+                    </div>
+                    ` : ''}
+                    
+                    ${files && files.length > 0 ? `
+                    <h2 style="color: #059669; border-bottom: 2px solid #059669; padding-bottom: 10px;">📎 DOCUMENTOS ANEXADOS</h2>
+                    <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #0ea5e9;">
+                        <div class="field">
+                            <div class="label">📄 Arquivos Enviados:</div>
+                            <div class="value">
+                                ${files.map(file => `
+                                    <div style="margin-bottom: 10px; padding: 10px; background: white; border-radius: 5px; border: 1px solid #e5e7eb;">
+                                        <strong>📋 ${file.originalname}</strong><br>
+                                        <small style="color: #6b7280;">Tamanho: ${(file.size / 1024).toFixed(1)} KB</small>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        ${downloadLink ? `
+                        <div class="field" style="margin-top: 20px;">
+                            <div class="label">🔗 Link para Download:</div>
+                            <div class="value">
+                                <a href="${process.env.NODE_ENV === 'production' ? 'https://fsantanadev.github.io/AporteCapital' : 'http://localhost:3001'}/download/${downloadLink}" 
+                                   style="background: #059669; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">
+                                    📥 Acessar Documentos
+                                </a>
+                                <br><br>
+                                <small style="color: #6b7280;">
+                                    ⏰ <strong>Link válido por 48 horas</strong><br>
+                                    🔢 <strong>Máximo 5 downloads</strong><br>
+                                    🔒 <strong>Acesso seguro e temporário</strong>
+                                </small>
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        <div style="background: #fef3c7; padding: 10px; border-radius: 5px; margin-top: 15px; border-left: 4px solid #f59e0b;">
+                            <small style="color: #92400e;">
+                                <strong>📋 Instruções:</strong><br>
+                                • Os documentos também foram anexados diretamente neste e-mail<br>
+                                • Use o link acima para download individual ou em lote<br>
+                                • Guarde os documentos em local seguro após o download
+                            </small>
+                        </div>
                     </div>
                     ` : ''}
                 </div>
@@ -1150,6 +1194,13 @@ app.post('/api/consultoria', upload.array('documentos', 5), async (req, res) => 
             });
         }
         
+        // Gera link temporário para download dos arquivos (se houver)
+        let downloadLink = null;
+        if (req.files && req.files.length > 0) {
+            downloadLink = generateTempLink(req.files, 5, 48); // 5 downloads, 48 horas
+            console.log('Link temporário gerado:', downloadLink);
+        }
+
         // Configura o email com dados enriquecidos do CNPJ
         const subjectSuffix = dadosCNPJ && dadosCNPJ.success ? ` - ${dadosCNPJ.situacao}` : '';
         const mailOptions = {
@@ -1157,19 +1208,12 @@ app.post('/api/consultoria', upload.array('documentos', 5), async (req, res) => 
             // to: process.env.RECIPIENT_EMAIL || 'contato@aportecapitalcred.com.br', 
             to: process.env.RECIPIENT_EMAIL ,
             subject: `Nova Solicitação de Consultoria - ${req.body.empresa}${subjectSuffix}`,
-            html: generateEmailHTML(req.body, dadosCNPJ),
+            html: generateEmailHTML(req.body, dadosCNPJ, downloadLink, req.files),
             attachments: attachments
         };
         
         // Envia o email
         await transporter.sendMail(mailOptions);
-        
-        // Gera link temporário para download dos arquivos (se houver)
-        let downloadLink = null;
-        if (req.files && req.files.length > 0) {
-            downloadLink = generateTempLink(req.files, 5, 48); // 5 downloads, 48 horas
-            console.log('Link temporário gerado:', downloadLink);
-        }
         
         // Gera duas mensagens do WhatsApp diferentes:
         // 1. Para o CLIENTE (sem link de download - mais limpa)
