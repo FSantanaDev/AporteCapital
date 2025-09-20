@@ -1,0 +1,24 @@
+# Arquivos de desenvolvimento
+server.js
+node_modules/
+.env
+.env.local
+.env.example
+
+# Arquivos de documentação
+README.md
+DEPLOY-*.md
+ALTERNATIVAS-GRATUITAS.md
+GITHUB-PAGES-GUIDE.md
+
+# Arquivos de configuração de outras plataformas
+railway.json
+render.yaml
+_config.yml
+requiitos.txt
+
+# Arquivos temporários
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
